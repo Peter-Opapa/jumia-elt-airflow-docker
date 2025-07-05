@@ -1,7 +1,11 @@
 
 # 🛒 Jumia Laptop ELT Pipeline (Airflow + Docker + PostgreSQL)
 
-A production-grade ELT pipeline that **scrapes laptop data** from the [Jumia Kenya](https://www.jumia.co.ke/) website, loads it into a **PostgreSQL-based data warehouse**, transforms it using **stored procedures**, and orchestrates the process using **Apache Airflow** in a **Dockerized environment**. The pipeline runs **daily** and can also be triggered manually via the Airflow web UI.
+A production-grade ELT pipeline built using Python for scraping real-time laptop product data from [Jumia Kenya Laptops](https://www.jumia.co.ke/mlp-laptops/) category. The extracted data is simultaneously stored in a CSV file and loaded into a PostgreSQL-based data warehouse structured into Bronze, Silver, and Gold layers.
+
+Transformations are handled using SQL stored procedures in the Database, and the entire workflow is fully containerized using Docker and orchestrated with Apache Airflow. The pipeline is designed to run automatically on a daily schedule or can be manually triggered via the Airflow web interface.
+
+This robust and modular setup is ideal for automating data collection, transformation, and storage processes in a scalable and maintainable way.
 
 ---
 
