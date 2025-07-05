@@ -34,7 +34,7 @@ Everything is **Dockerized** and managed using **Apache Airflow**, making it rob
 
 ## 🧱 Architecture
 
-![ETL Architecture Diagram](https://example.com/your-etl-architecture.png)
+![ETL Architecture Diagram](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/data-architecture.png)
 
 ```text
                ┌────────────┐
@@ -46,7 +46,7 @@ Everything is **Dockerized** and managed using **Apache Airflow**, making it rob
           └─────┬──────┬────────┘
                 │      │
         ┌───────▼──┐ ┌─▼────────┐
-        │  CSV File │ │ Bronze DB │
+        │  CSV File │ │ Bronze Layer │
         └──────────┘ └─────┬────┘
                            │
                    ┌──────▼─────┐
@@ -95,45 +95,57 @@ Everything is **Dockerized** and managed using **Apache Airflow**, making it rob
 jumia-laptop-etl-pipeline/
 │
 ├── dags/
-│   └── jumia_etl_dag.py                # Airflow DAG definition
+│   └── jumia_etl_dag.py                   # Airflow DAG definition
 │
 ├── scripts/
-│   ├── extract.py                      # Scrapes Jumia laptops
-│   ├── transform.py                    # (Optional) Data cleanup
-│   └── load.py                         # Loads data into bronze table
+│   ├── scraping.py                        # Scrapes Jumia laptops data                  
+│   └── loading_tasks.py                   # Loads data into bronze layer and executes stored procedures
 │
 ├── sql/
-│   ├── create_bronze_table.sql
-│   ├── silver_layer_proc.sql
-│   └── gold_layer_proc.sql
+│   ├── create_bronze_table.sql            # SQL query for creating the bronze layer table
+│   ├── silver_layer_proc.sql              # Stored procedure for Silver layer transformation
+│   └── gold_layer_proc.sql                # Stored procedure for Gold layer (business-ready data)
+│
+├── Images/                                # Captured screenshots and proof images
+│
+├── Logs/
+│   ├── scrape_laptops.log                 # Airflow log showing successful data scraping                  
+│   └── load_to_bronze.log                 # Airflow log showing successful loading into bronze layer
 │
 ├── docker/
 │   ├── Dockerfile
-│   └── docker-compose.yml
+│   └── docker-compose.yml                 # Manages multi-container Docker environment
 │
 ├── data/
-│   └── sample_laptops.csv              # Sample data
+│   └── sample_laptops.csv                 # Sample scraped data saved to CSV
 │
 ├── notebooks/
-│   └── analyze_gold_layer.ipynb        # Optional analytics preview
+│   ├── jumia_full_pipeline.ipynb          # Jupyter version of the full pipeline (for testing)
+│   └── jumia_full_pipeline.py             # Python script version of the notebook
 │
-├── requirements.txt
-├── README.md
-└── .gitignore
+├── requirements.txt                       # Python dependencies
+├── README.md                              # Project documentation
+└── .gitignore                             # Excludes files from Git tracking
+
 ```
 
 ---
 
-## 🖼️ Screenshots
+##  Proof of Working
 
-### 📌 Airflow DAG  
-![Airflow DAG Screenshot](https://example.com/airflow-dag.png)
+### 📌 Airflow Web UI 
+![Airflow Web UI Screenshot](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/airflow_success.png)
 
 ### 📌 Airflow Task Logs  
-![Airflow Logs Screenshot](https://example.com/airflow-logs.png)
+[Airflow Logs](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/tree/main/logs)
 
 ### 📌 PostgreSQL Layers  
-![DB Tables Screenshot](https://example.com/db-tables.png)
+[Bronze Layer table](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/bronze_layer_output.png)
+[Silver Layer Table](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/Silver_layer_output.png)
+[Gold Layer Sample](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/sample_gold_layer_output.png)
+
+## 📌 Manual Testing Output
+[Manual Test Result](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/manual_testing_success.png)
 
 ---
 
@@ -147,8 +159,8 @@ jumia-laptop-etl-pipeline/
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/jumia-laptop-etl-pipeline.git
-cd jumia-laptop-etl-pipeline
+git clone https://github.com/Peter-Opapa/jumia-elt-airflow-docker.git
+cd jumia-elt-airflow-docker
 
 # Start all services (Airflow, Postgres)
 docker-compose up --build
@@ -168,22 +180,21 @@ docker-compose up --build
 | Column        | Type      |
 |---------------|-----------|
 | product_name  | TEXT      |
-| new_price     | NUMERIC   |
-| old_price     | NUMERIC   |
+| new_price     | TEXT  |
+| old_price     | TEXT  |
 | discount      | TEXT      |
 | scraped_on    | TIMESTAMP |
 
 ### Silver Layer
-> Cleaned using `silver_layer_proc.sql`: removes nulls, standardizes fields
+Cleaned using [`silver_layer_proc.sql`](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/sql/silver_schema_stored_procedure.sql): removes nulls, standardizes fields
 
 ### Gold Layer
-> Aggregated insights created using `gold_layer_proc.sql`: average prices, discounts per brand/category
+Aggregated insights created using [`gold_layer_proc.sql`](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/sql/gold_schema_stored_procedure.sql): average prices, discounts per brand/category
 
 ---
 
 ## 📌 To Do
 
-- [ ] Add email or Slack alerts on DAG failure
 - [ ] Expand scraper to other Jumia product categories
 - [ ] Connect to BI tools (Power BI, Metabase)
 - [ ] Add unit/integration tests
@@ -192,11 +203,11 @@ docker-compose up --build
 
 ## 📜 License
 
-This project is licensed under the MIT License. See [LICENSE](https://github.com/your-username/jumia-laptop-etl-pipeline/blob/main/LICENSE) for details.
+This project is licensed under the MIT License. See [LICENSE](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/LICENSE) for details.
 
 ---
 
 ## 📬 Contact
 
-Created with ❤️ by [Your Name](https://github.com/your-username)  
+Created with ❤️ by [Peter](https://github.com/peter-opapa)  
 Feel free to reach out or open an issue for questions and improvements!
