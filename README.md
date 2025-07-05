@@ -26,7 +26,7 @@ This robust and modular setup is ideal for automating data collection, transform
 
 ## 🚀 Project Overview
 
-This project automates the extraction, transformation, and loading of real-time laptop listings from Jumia. The scraped data is simultaneously saved into a CSV file and streamed directly into a PostgreSQL data warehouse where it undergoes multiple transformation layers:
+This project automates the extraction, loading and transformation of real-time laptop listings from Jumia. The scraped data is simultaneously saved into a CSV file and streamed directly into a PostgreSQL data warehouse where it undergoes multiple transformation layers:
 
 - **Bronze Layer**: Raw scraped data
 - **Silver Layer**: Cleaned and standardized data via SQL procedures
