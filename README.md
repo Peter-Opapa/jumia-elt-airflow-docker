@@ -36,32 +36,6 @@ Everything is **Dockerized** and managed using **Apache Airflow**, making it rob
 
 ![ETL Architecture Diagram](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/data-architecture.png)
 
-```text
-               ┌────────────┐
-               │ Web Scraper│
-               └─────┬──────┘
-                     │
-          ┌──────────▼──────────┐
-          │  Extract (Python)   │
-          └─────┬──────┬────────┘
-                │      │
-        ┌───────▼──┐ ┌─▼────────┐
-        │  CSV File │ │ Bronze Layer │
-        └──────────┘ └─────┬────┘
-                           │
-                   ┌──────▼─────┐
-                   │ Silver Layer│
-                   └──────┬─────┘
-                          │
-                   ┌──────▼─────┐
-                   │ Gold Layer │
-                   └────────────┘
-                           │
-             [Analytics, Dashboards, Exports]
-
-  (All steps orchestrated via Docker + Airflow)
-```
-
 ---
 
 ## ⚙️ Tech Stack
@@ -136,16 +110,20 @@ jumia-laptop-etl-pipeline/
 ### 📌 Airflow Web UI 
 ![Airflow Web UI Screenshot](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/airflow_success.png)
 
+### 📌 PostgreSQL Layers
+#### Bronze layer Output
+![Bronze Layer table](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/bronze_layer_output.png)
+#### Silver layer Output
+![Silver Layer Table](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/Silver_layer_output.png)
+#### Gold layer Output
+![Gold Layer Sample](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/sample_gold_layer_output.png)
+
+### 📌 Manual Testing Output
+![Manual Test Result](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/manual_testing_success.png)
+
 ### 📌 Airflow Task Logs  
 [Airflow Logs](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/tree/main/logs)
 
-### 📌 PostgreSQL Layers  
-[Bronze Layer table](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/bronze_layer_output.png)
-[Silver Layer Table](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/Silver_layer_output.png)
-[Gold Layer Sample](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/sample_gold_layer_output.png)
-
-## 📌 Manual Testing Output
-[Manual Test Result](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/blob/main/images/manual_testing_success.png)
 
 ---
 
