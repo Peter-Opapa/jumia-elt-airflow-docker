@@ -10,16 +10,14 @@ from datetime import datetime, timedelta
 import sys
 
 
-# Add src directory to Python path for imports
-sys.path.append('/opt/airflow/src')
-
 from jumia_pipeline import (
     scrape_laptop_data,
     load_to_bronze,
     run_silver_layer_procedure,
     run_gold_layer_procedure
 )
-
+# Add src directory to Python path for imports
+sys.path.append('/opt/airflow/src')
 # DAG Configuration
 default_args = {
     'owner': 'opapa-peter',
