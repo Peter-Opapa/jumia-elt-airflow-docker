@@ -1,7 +1,7 @@
 # src/jumia_pipeline.py
 """
 Jumia ELT Pipeline - Core Functions
-Extracts laptop data from Jumia Kenya, loads to Bronze layer, 
+Extracts laptop data from Jumia Kenya, loads to Bronze layer,
 and triggers Silver/Gold transformations via stored procedures.
 """
 
@@ -32,9 +32,9 @@ def get_db_connection():
     user = "postgres"
     port = 5432
     password = "Opapa@1292"
-    
+
     print(f"🔗 Connecting to: {host}:{port}/{database} as {user}")
-    
+
     return psycopg2.connect(
         host=host,
         database=database,
@@ -50,7 +50,7 @@ def scrape_laptop_data():
     """
     all_data = []
     today = datetime.date.today()
-    
+
     print("🚀 Starting Jumia laptop scraping...")
 
     for page in range(1, 2):  # Scrape 1 pages as in original
@@ -62,7 +62,7 @@ def scrape_laptop_data():
             response.raise_for_status()
             soup = BeautifulSoup(response.text, 'html.parser')
             products = soup.find_all('article', class_='c-prd')
-            
+
             print(f"   Found {len(products)} products on page {page}")
 
             for i, product in enumerate(products):
@@ -99,13 +99,13 @@ def scrape_laptop_data():
             continue
 
     print(f"✅ Scraping completed! Total products: {len(all_data)}")
-    
+
     # Save CSV for backup (local development)
     if not os.path.exists('/opt/airflow'):  # Not in Docker
         df = pd.DataFrame(all_data, columns=['Name', 'Current Price', 'Old Price', 'Discount', 'Date'])
         df.to_csv('JumiaLaptopScrape.csv', index=False)
         print("📁 Data saved to JumiaLaptopScrape.csv")
-    
+
     return all_data
 
 def load_to_bronze(data):
@@ -116,10 +116,10 @@ def load_to_bronze(data):
     conn = None
     try:
         print("📥 Loading data to Bronze layer...")
-        
+
         conn = get_db_connection()
         cursor = conn.cursor()
-        
+
         # Create bronze schema and table if they don't exist
         cursor.execute("""
             CREATE SCHEMA IF NOT EXISTS bronze;
@@ -133,10 +133,10 @@ def load_to_bronze(data):
             );
         """)
         conn.commit()
-        
+
         # Clear existing data
         cursor.execute("TRUNCATE TABLE bronze.jumia_raw_laptops;")
-        
+
         # Insert new data
         insert_query = """
             INSERT INTO bronze.jumia_raw_laptops (
@@ -145,7 +145,7 @@ def load_to_bronze(data):
         """
         cursor.executemany(insert_query, data)
         conn.commit()
-        
+
         print(f"✅ {len(data)} records loaded to Bronze layer successfully!")
 
     except Exception as e:
@@ -165,20 +165,20 @@ def run_silver_layer_procedure():
     conn = None
     try:
         print("🔄 Running Silver layer transformation...")
-        
+
         conn = get_db_connection()
         cursor = conn.cursor()
-        
+
         # Check if procedure exists
         cursor.execute("""
             SELECT EXISTS (
-                SELECT FROM pg_proc p 
-                JOIN pg_namespace n ON p.pronamespace = n.oid 
+                SELECT FROM pg_proc p
+                JOIN pg_namespace n ON p.pronamespace = n.oid
                 WHERE n.nspname = 'silver' AND p.proname = 'clean_jumia_laptops'
             );
         """)
         proc_exists = cursor.fetchone()[0]
-        
+
         if proc_exists:
             cursor.execute("CALL silver.clean_jumia_laptops();")
             conn.commit()
@@ -203,20 +203,20 @@ def run_gold_layer_procedure():
     conn = None
     try:
         print("🔄 Running Gold layer aggregation...")
-        
+
         conn = get_db_connection()
         cursor = conn.cursor()
-        
+
         # Check if procedure exists
         cursor.execute("""
             SELECT EXISTS (
-                SELECT FROM pg_proc p 
-                JOIN pg_namespace n ON p.pronamespace = n.oid 
+                SELECT FROM pg_proc p
+                JOIN pg_namespace n ON p.pronamespace = n.oid
                 WHERE n.nspname = 'gold' AND p.proname = 'refresh_gold_layer'
             );
         """)
         proc_exists = cursor.fetchone()[0]
-        
+
         if proc_exists:
             cursor.execute("CALL gold.refresh_gold_layer();")
             conn.commit()
@@ -240,26 +240,26 @@ def run_full_pipeline():
     """
     print("🚀 Starting Jumia ELT Pipeline...")
     start_time = datetime.datetime.now()
-    
+
     try:
         # Extract
         data = scrape_laptop_data()
-        
+
         # Load
         load_to_bronze(data)
-        
+
         # Transform - Silver
         run_silver_layer_procedure()
-        
+
         # Transform - Gold
         run_gold_layer_procedure()
-        
+
         end_time = datetime.datetime.now()
         duration = end_time - start_time
-        
+
         print(f"🎉 Pipeline completed successfully in {duration}")
         return True
-        
+
     except Exception as e:
         print(f"💥 Pipeline failed: {e}")
         return False
