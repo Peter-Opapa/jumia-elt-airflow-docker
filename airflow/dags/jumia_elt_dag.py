@@ -8,7 +8,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import sys
-import os
+
 
 # Add src directory to Python path for imports
 sys.path.append('/opt/airflow/src')
