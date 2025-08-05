@@ -3,6 +3,9 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Environment variables (contains sensitive data like passwords)
+.env
+
 # C extensions
 *.so
 
@@ -135,8 +138,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
-.envrc
 .venv
 env/
 venv/
@@ -204,4 +205,18 @@ cython_debug/
 # Marimo
 marimo/_static/
 marimo/_lsp/
+
 __marimo__/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Airflow
+airflow/logs/*
+!airflow/logs/.gitkeep
+airflow/plugins/__pycache__/
+
+# Data files
+*.csv
+JumiaLaptopScrape.csv
