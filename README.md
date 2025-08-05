@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <div align="center">
-  <img src="images/airflow_overview.png" alt="Airflow Dashboard Overview" width="800"/>
+  <img src="images/airflow_overview.png" alt="Airflow Dashboard Overview" width="900"/>
   <p><em>Professional Apache Airflow Dashboard</em></p>
 </div>
 
@@ -47,12 +47,6 @@ graph TD
     H --> F
     I[Airflow Web UI] --> B
     
-    style A fill:#f3e5f5
-    style B fill:#f3e5f5
-    style C fill:#f3e5f5
-    style D fill:#fff3e0
-    style E fill:#f3e5f5
-    style F fill:#f3e5f5
 ```
 
 #### 🔄 Data Flow Process
@@ -91,7 +85,7 @@ Ensure you have the following installed and configured:
 ### ⚡ Installation & Setup
 
 <div align="center">
-  <img src="images/docker_containers.png" alt="Installation Process" width="700"/>
+  <img src="images/docker_containers.png" alt="Installation Process" width="900"/>
   <p><em>Docker Containers Image</em></p>
 </div>
 
@@ -149,7 +143,7 @@ docker compose up -d
 - 🔑 **Password**: `admin`
 
 <div align="center">
-  <img src="images/airflow_login.png" alt="Airflow Login" width="600"/>
+  <img src="images/airflow_login.png" alt="Airflow Login" width="900"/>
   <p><em>Airflow Web UI Login Screen</em></p>
 </div>
 
@@ -255,7 +249,7 @@ sequenceDiagram
 ### 🎯 Airflow DAG Tasks
 
 <div align="center">
-  <img src="images/airflow_ui_sucess.png" alt="DAG Graph View" width="700"/>
+  <img src="images/airflow_ui_sucess.png" alt="DAG Graph View" width="900"/>
   <p><em>Airflow DAG Graph - Task Dependencies and Flow</em></p>
 </div>
 
@@ -276,7 +270,7 @@ sequenceDiagram
 
 ## 📊 Monitoring & Observability
 <div align="center">
-  <img src="images/airflow_monitoring.png" alt="DAG Monitoring View" width="700"/>
+  <img src="images/airflow_monitoring.png" alt="DAG Monitoring View" width="900"/>
   <p><em>Airflow Monitoring View</em></p>
 </div>
 ### 🎛️ Airflow UI Features
@@ -297,7 +291,7 @@ sequenceDiagram
 | **Task Logs** | Debugging and troubleshooting | Error messages, data quality |
 
 <div align="center">
-  <img src="images/Gantt_image.png" alt="Gantt Chart View" width="700"/>
+  <img src="images/Gantt_image.png" alt="Gantt Chart View" width="900"/>
   <p><em>Gantt Chart - Performance Analysis and Optimization</em></p>
 </div>
 
