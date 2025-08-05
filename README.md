@@ -12,8 +12,7 @@
 </div>
 
 ## 📊 Executive Summary
-
-This repository contains a **production-grade ELT (Extract, Load, Transform) data pipeline** built with Apache Airflow, designed to extract laptop product data from Jumia Kenya and process it through a sophisticated medallion architecture. The pipeline demonstrates enterprise-level data engineering practices with proper orchestration, monitoring, and scalability.
+This project implements a production-grade ELT(Extract, Load, Transform) data pipeline that scrapes laptop product data from Jumia Kenya using BeautifulSoup and Requests, then processes it through a medallion architecture using PostgreSQL. Apache Airflow orchestrates scraping, loading, and transformation tasks, moving data from raw (Bronze) to cleaned (Silver) and analytics-ready (Gold) layers using PostreSQL Stored Procedures. The entire pipeline is containerized with Docker Compose for portability and scalability, and integrated with GitHub Actions for CI/CD, ensuring automated testing and deployment. This setup reflects professional, enterprise-level data engineering practices.
 
 ### 🎯 Key Features
 
