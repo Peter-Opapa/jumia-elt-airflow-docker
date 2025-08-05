@@ -1,0 +1,25 @@
+# Core Pipeline Dependencies
+beautifulsoup4>=4.12.2
+requests>=2.31.0
+pandas>=2.0.3
+psycopg2-binary>=2.9.7
+python-dotenv>=1.0.0
+
+# Apache Airflow (for reference - installed via Docker)
+# apache-airflow==2.7.1
+
+# Development & Testing Dependencies
+pytest>=7.4.0
+pytest-cov>=4.1.0
+black>=23.7.0
+flake8>=6.0.0
+bandit>=1.7.5
+safety>=2.3.0
+
+# Optional: Data Analysis & Visualization
+matplotlib>=3.7.2
+seaborn>=0.12.2
+plotly>=5.15.0
+
+# Optional: Performance Monitoring
+psutil>=5.9.5

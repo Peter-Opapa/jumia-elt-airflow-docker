@@ -22,7 +22,7 @@ from jumia_pipeline import (
 
 # DAG Configuration
 default_args = {
-    'owner': 'jumia-data-team',
+    'owner': 'opapa-peter',
     'depends_on_past': False,
     'start_date': datetime(2025, 8, 5),
     'email_on_failure': False,

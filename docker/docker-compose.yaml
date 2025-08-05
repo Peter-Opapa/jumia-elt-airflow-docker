@@ -1,9 +1,11 @@
-# Jumia ELT Pipeline - Docker Compose Configuration
+# Windows-Optimized Jumia ELT Pipeline - Docker Compose Configuration
 version: '3.8'
 
 x-airflow-common:
   &airflow-common
   image: apache/airflow:2.7.1
+  env_file:
+    - ../.env
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
@@ -16,10 +18,10 @@ x-airflow-common:
     _PIP_ADDITIONAL_REQUIREMENTS: 'beautifulsoup4 requests pandas psycopg2-binary python-dotenv'
     
     # Jumia Database Configuration (your existing database)
-    DB_HOST: ${DB_HOST}
-    DB_PORT: ${DB_PORT}
-    DB_NAME: ${DB_NAME}
-    DB_USER: ${DB_USER}
+    DB_HOST: ${DB_HOST:-host.docker.internal}
+    DB_PORT: ${DB_PORT:-5432}
+    DB_NAME: ${DB_NAME:-jumia_db}
+    DB_USER: ${DB_USER:-postgres}
     DB_PASSWORD: ${DB_PASSWORD}
     
   volumes:
@@ -27,7 +29,6 @@ x-airflow-common:
     - ../airflow/logs:/opt/airflow/logs
     - ../airflow/plugins:/opt/airflow/plugins
     - ../src:/opt/airflow/src
-  user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
     airflow-db:
@@ -50,25 +51,28 @@ services:
       start_period: 5s
     restart: always
 
-  # Airflow Database Initialization
+  # Airflow Database Initialization (Windows-friendly)
   airflow-init:
     <<: *airflow-common
     entrypoint: /bin/bash
     command:
       - -c
       - |
-        mkdir -p /opt/airflow/logs /opt/airflow/dags /opt/airflow/plugins
-        chown -R "${AIRFLOW_UID}:0" /opt/airflow/{logs,dags,plugins}
-        exec /entrypoint airflow version
+        if [ ! -f "/opt/airflow/airflow.db" ]; then
+          airflow db init
+        fi
+        airflow db upgrade
+        airflow users create \
+          --username admin \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email admin@example.com \
+          --password admin
+        echo "Airflow initialization completed"
     environment:
       <<: *airflow-common-env
-      _AIRFLOW_DB_UPGRADE: 'true'
-      _AIRFLOW_WWW_USER_CREATE: 'true'
-      _AIRFLOW_WWW_USER_USERNAME: ${AIRFLOW_USER:-admin}
-      _AIRFLOW_WWW_USER_PASSWORD: ${AIRFLOW_PASSWORD:-admin}
-    user: "0:0"
-    volumes:
-      - ../:/sources
+    restart: "no"
 
   # Airflow Web Server
   airflow-webserver:

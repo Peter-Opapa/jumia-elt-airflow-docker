@@ -12,9 +12,6 @@ import datetime
 import pandas as pd
 import os
 import psycopg2
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # Configuration
 BASE_URL = "https://www.jumia.co.ke"
@@ -28,13 +25,22 @@ HEADERS = {
 }
 
 def get_db_connection():
-    """Create database connection with environment-based configuration"""
+    """Create database connection to your existing jumia_db"""
+    # Connect to your existing PostgreSQL database
+    host = "host.docker.internal"  # Your local PostgreSQL
+    database = "jumia_db"
+    user = "postgres"
+    port = 5432
+    password = "Opapa@1292"
+    
+    print(f"🔗 Connecting to: {host}:{port}/{database} as {user}")
+    
     return psycopg2.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        database=os.getenv("DB_NAME", "jumia_db"),
-        user=os.getenv("DB_USER", "postgres"),
-        password=os.getenv("DB_PASSWORD"),
-        port=int(os.getenv("DB_PORT", 5432))
+        host=host,
+        database=database,
+        user=user,
+        port=port,
+        password=password
     )
 
 def scrape_laptop_data():
@@ -47,7 +53,7 @@ def scrape_laptop_data():
     
     print("🚀 Starting Jumia laptop scraping...")
 
-    for page in range(1, 7):  # Scrape 6 pages as in original
+    for page in range(1, 2):  # Scrape 1 pages as in original
         category_url = f"https://www.jumia.co.ke/mlp-laptops/?page={page}"
         print(f"\n📄 Scraping Page {page}...")
 
@@ -114,6 +120,20 @@ def load_to_bronze(data):
         conn = get_db_connection()
         cursor = conn.cursor()
         
+        # Create bronze schema and table if they don't exist
+        cursor.execute("""
+            CREATE SCHEMA IF NOT EXISTS bronze;
+            CREATE TABLE IF NOT EXISTS bronze.jumia_raw_laptops (
+                id SERIAL PRIMARY KEY,
+                product_name TEXT,
+                new_price TEXT,
+                old_price TEXT,
+                discount TEXT,
+                scraped_on DATE
+            );
+        """)
+        conn.commit()
+        
         # Clear existing data
         cursor.execute("TRUNCATE TABLE bronze.jumia_raw_laptops;")
         
@@ -149,11 +169,22 @@ def run_silver_layer_procedure():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Execute your existing stored procedure
-        cursor.execute("CALL silver.clean_jumia_laptops();")
-        conn.commit()
+        # Check if procedure exists
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT FROM pg_proc p 
+                JOIN pg_namespace n ON p.pronamespace = n.oid 
+                WHERE n.nspname = 'silver' AND p.proname = 'clean_jumia_laptops'
+            );
+        """)
+        proc_exists = cursor.fetchone()[0]
         
-        print("✅ Silver layer procedure executed successfully!")
+        if proc_exists:
+            cursor.execute("CALL silver.clean_jumia_laptops();")
+            conn.commit()
+            print("✅ Silver layer procedure executed successfully!")
+        else:
+            print("⚠️  Silver layer procedure not found - skipping...")
 
     except Exception as e:
         if conn:
@@ -176,11 +207,22 @@ def run_gold_layer_procedure():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Execute your existing stored procedure
-        cursor.execute("CALL gold.refresh_gold_layer();")
-        conn.commit()
+        # Check if procedure exists
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT FROM pg_proc p 
+                JOIN pg_namespace n ON p.pronamespace = n.oid 
+                WHERE n.nspname = 'gold' AND p.proname = 'refresh_gold_layer'
+            );
+        """)
+        proc_exists = cursor.fetchone()[0]
         
-        print("✅ Gold layer procedure executed successfully!")
+        if proc_exists:
+            cursor.execute("CALL gold.refresh_gold_layer();")
+            conn.commit()
+            print("✅ Gold layer procedure executed successfully!")
+        else:
+            print("⚠️  Gold layer procedure not found - skipping...")
 
     except Exception as e:
         if conn:
