@@ -27,7 +27,7 @@ This repository contains a **production-grade ELT (Extract, Load, Transform) dat
 ## 🏗️ System Architecture
 
 <div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/images/Peter-Opapa/project_architecture.png" alt="ELT Pipeline Architecture" width="900"/>
+  <img src="images/project_architecture.png" alt="ELT Pipeline Architecture" width="900"/>
   <p><em>Complete ELT Pipeline Architecture - Medallion Data Lakehouse Pattern</em></p>
 </div>
 
