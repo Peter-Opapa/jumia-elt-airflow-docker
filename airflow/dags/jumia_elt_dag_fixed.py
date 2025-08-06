@@ -2,13 +2,15 @@
 Jumia ELT Pipeline DAG
 Orchestrates the extraction, loading, and transformation of Jumia laptop data
 """
-# Add src directory to Python path for imports
-sys.path.append('/opt/airflow/src')
+
 from datetime import datetime, timedelta
 import sys
 import os
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+
+# Add src directory to Python path for imports
+sys.path.append('/opt/airflow/src')
 
 from jumia_pipeline import (
     scrape_laptop_data,
