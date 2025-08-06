@@ -7,13 +7,12 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/airflow-dashboard-overview.png" alt="Airflow Dashboard Overview" width="800"/>
-  <p><em>Professional Apache Airflow Dashboard - Production Ready ELT Pipeline</em></p>
+  <img src="images/airflow_overview.png" alt="Airflow Dashboard Overview" width="900"/>
+  <p><em>Professional Apache Airflow Dashboard</em></p>
 </div>
 
 ## 📊 Executive Summary
-
-This repository contains a **production-grade ELT (Extract, Load, Transform) data pipeline** built with Apache Airflow, designed to extract laptop product data from Jumia Kenya and process it through a sophisticated medallion architecture. The pipeline demonstrates enterprise-level data engineering practices with proper orchestration, monitoring, and scalability.
+This project implements a production-grade ELT(Extract, Load, Transform) data pipeline that scrapes laptop product data from Jumia Kenya using BeautifulSoup and Requests, then processes it through a medallion architecture using PostgreSQL. Apache Airflow orchestrates scraping, loading, and transformation tasks, moving data from raw (Bronze) to cleaned (Silver) and analytics-ready (Gold) layers using PostreSQL Stored Procedures. The entire pipeline is containerized with Docker Compose for portability and scalability, and integrated with GitHub Actions for CI/CD, ensuring automated testing and deployment. This setup reflects professional, enterprise-level data engineering practices.
 
 ### 🎯 Key Features
 
@@ -27,7 +26,7 @@ This repository contains a **production-grade ELT (Extract, Load, Transform) dat
 ## 🏗️ System Architecture
 
 <div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/elt-architecture-diagram.png" alt="ELT Pipeline Architecture" width="900"/>
+  <img src="images/project_architecture.png" alt="ELT Pipeline Architecture" width="900"/>
   <p><em>Complete ELT Pipeline Architecture - Medallion Data Lakehouse Pattern</em></p>
 </div>
 
@@ -47,12 +46,6 @@ graph TD
     H --> F
     I[Airflow Web UI] --> B
     
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#e8f5e8
-    style D fill:#fff3e0
-    style E fill:#f1f8e9
-    style F fill:#fff8e1
 ```
 
 #### 🔄 Data Flow Process
@@ -91,7 +84,8 @@ Ensure you have the following installed and configured:
 ### ⚡ Installation & Setup
 
 <div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/installation-steps.png" alt="Installation Process" width="700"/>
+  <img src="images/docker_containers.png" alt="Installation Process" width="900"/>
+  <p><em>Docker Containers Image</em></p>
 </div>
 
 #### 1️⃣ Clone Repository
@@ -122,7 +116,7 @@ DB_HOST=host.docker.internal    # For Docker to host communication
 DB_PORT=5432
 DB_NAME=jumia_db
 DB_USER=postgres
-DB_PASSWORD=your_actual_password  # ⚠️ Replace with real password
+DB_PASSWORD=your_actual_password  # ⚠️ Replace with your real password
 
 # Pipeline Settings
 MAX_PAGES=6
@@ -148,7 +142,7 @@ docker compose up -d
 - 🔑 **Password**: `admin`
 
 <div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/airflow-login-screen.png" alt="Airflow Login" width="600"/>
+  <img src="images/airflow_login.png" alt="Airflow Login" width="900"/>
   <p><em>Airflow Web UI Login Screen</em></p>
 </div>
 
@@ -157,11 +151,6 @@ docker compose up -d
 2. Toggle the DAG **ON** (activate)
 3. Click **"Trigger DAG"** for immediate execution
 4. Monitor progress in real-time
-
-<div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/dag-execution-view.png" alt="DAG Execution" width="800"/>
-  <p><em>Live DAG Execution Monitoring</em></p>
-</div>
 
 ## 📁 Project Structure
 
@@ -226,11 +215,6 @@ DELAY_BETWEEN_REQUESTS=1
 
 ## 🔄 Pipeline Deep Dive
 
-<div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/pipeline-flow-detailed.png" alt="Detailed Pipeline Flow" width="900"/>
-  <p><em>End-to-End Data Flow with Processing Details</em></p>
-</div>
-
 ### 📊 Data Flow Architecture
 
 ```mermaid
@@ -264,7 +248,7 @@ sequenceDiagram
 ### 🎯 Airflow DAG Tasks
 
 <div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/dag-graph-view.png" alt="DAG Graph View" width="700"/>
+  <img src="images/airflow_ui_sucess.png" alt="DAG Graph View" width="900"/>
   <p><em>Airflow DAG Graph - Task Dependencies and Flow</em></p>
 </div>
 
@@ -284,12 +268,10 @@ sequenceDiagram
 - **📈 SLA**: 45 minutes end-to-end execution
 
 ## 📊 Monitoring & Observability
-
 <div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/monitoring-dashboard.png" alt="Monitoring Dashboard" width="800"/>
-  <p><em>Comprehensive Monitoring Dashboard - Real-time Pipeline Health</em></p>
+  <img src="images/airflow_monitoring.png" alt="DAG Monitoring View" width="900"/>
+  <p><em>Airflow Monitoring View</em></p>
 </div>
-
 ### 🎛️ Airflow UI Features
 
 #### 📈 Dashboard Overview
@@ -308,7 +290,7 @@ sequenceDiagram
 | **Task Logs** | Debugging and troubleshooting | Error messages, data quality |
 
 <div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/gantt-chart-view.png" alt="Gantt Chart View" width="700"/>
+  <img src="images/Gantt_image.png" alt="Gantt Chart View" width="900"/>
   <p><em>Gantt Chart - Performance Analysis and Optimization</em></p>
 </div>
 
@@ -372,14 +354,20 @@ SELECT
 FROM gold.laptop_summary 
 ORDER BY total_products DESC;
 ```
+1. **Bronze Layer Output**
+<div align="center">
+  <img src="images/bronze_layer_output.png" alt="Bronze Layer" width="900"/>
+</div>
+2. **Silver Layer Output**
+<div align="center">
+  <img src="images/silver_layer_output.png" alt="Silver Layer" width="900"/>
+</div>
+3. **Sample Gold Layer Output**
+<div align="center">
+  <img src="images/sample_gold_layer_output.png" alt="ELT Pipeline Architecture" width="900"/>
+</div>
 
 ## 🛠️ Development & Maintenance
-
-### 🚀 Contributing Guidelines
-
-<div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/development-workflow.png" alt="Development Workflow" width="600"/>
-</div>
 
 #### 🔧 Adding New Features
 
@@ -498,11 +486,6 @@ docker compose exec airflow-webserver env | grep DB_PASSWORD
 
 ## 🚨 Troubleshooting Guide
 
-<div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/troubleshooting-flowchart.png" alt="Troubleshooting Flowchart" width="700"/>
-  <p><em>Systematic Troubleshooting Guide for Common Issues</em></p>
-</div>
-
 ### 🔧 Common Issues & Solutions
 
 | Issue Category | Problem | Solution | Verification |
@@ -607,7 +590,7 @@ FROM gold.laptop_summary;
 #### 🆘 Getting Help
 - **🐛 Bug Reports**: [GitHub Issues](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/issues)
 - **💬 Discussions**: [GitHub Discussions](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/discussions)
-- **📧 Direct Contact**: [peter.opapa@example.com](mailto:peter.opapa@example.com)
+- **📧 Direct Contact**: [opapapeter82@gmail.com](mailto:opapapeter82@gmail.com)
 - **📚 Documentation**: [Full Documentation](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/wiki)
 
 #### 🔗 External Resources
@@ -619,11 +602,6 @@ FROM gold.laptop_summary;
 ## 📈 Production Deployment & CI/CD
 
 ### 🚀 Deployment Strategies
-
-<div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/cicd-pipeline.png" alt="CI/CD Pipeline" width="800"/>
-  <p><em>Complete CI/CD Pipeline - From Development to Production</em></p>
-</div>
 
 #### 🌐 GitHub Actions Workflow
 
@@ -673,19 +651,6 @@ jobs:
 | **Staging** | Pre-production validation | `.env.staging` with staging DB |
 | **Production** | Live production system | GitHub Secrets for credentials |
 
-#### 🔒 **Airflow Web UI & GitHub Pages**
-
-**❌ Cannot host Airflow UI on GitHub Pages** because:
-- GitHub Pages only supports **static websites** (HTML, CSS, JS)
-- Airflow requires **dynamic server-side processing**
-- Database connections and Python execution needed
-- Real-time monitoring requires active backend services
-
-**✅ Alternative Solutions:**
-1. **Cloud Deployment**: AWS/GCP/Azure with public access
-2. **Staging Environment**: Public staging server for demos
-3. **Screenshot Documentation**: Static images of UI in README
-4. **Video Demonstrations**: Recorded workflow sessions
 
 ### 🏗️ Production Infrastructure
 
@@ -774,10 +739,6 @@ diff .env .env.template  # Should show only placeholder values
 ## 🤝 Contributing & Community
 
 ### 🚀 How to Contribute
-
-<div align="center">
-  <img src="https://github.com/Peter-Opapa/jumia-elt-airflow-docker/assets/your-username/contribution-workflow.png" alt="Contribution Workflow" width="600"/>
-</div>
 
 #### 🔀 Contribution Workflow
 
@@ -871,14 +832,8 @@ test(pipeline): add integration tests for gold layer
 #### 📞 Communication Channels
 - **💬 GitHub Discussions**: Technical questions and feature requests
 - **🐛 GitHub Issues**: Bug reports and enhancement suggestions  
-- **📧 Email**: [peter.opapa@example.com](mailto:peter.opapa@example.com) for private inquiries
-- **💼 LinkedIn**: [Peter Opapa](https://linkedin.com/in/peter-opapa) for professional connections
-
-#### 🏆 Recognition Program
-- **🌟 Top Contributors**: Featured in README and release notes
-- **🎖️ Bug Hunters**: Special recognition for security and critical bug reports
-- **📚 Documentation Heroes**: Highlighted for improving project documentation
-- **🚀 Feature Champions**: Credited for significant feature contributions
+- **📧 Email**: [opapapeter82@gmail.com](mailto:opapapeter82@gmail.com) for private inquiries
+- **💼 LinkedIn**: [Peter Opapa](www.linkedin.com/in/peter-opapa-187518237) for professional connections
 
 ### ⚖️ Legal & Compliance
 

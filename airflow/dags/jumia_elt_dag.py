@@ -18,7 +18,6 @@ from jumia_pipeline import (
     run_silver_layer_procedure,
     run_gold_layer_procedure
 )
-
 # DAG Configuration
 default_args = {
     'owner': 'opapa-peter',
