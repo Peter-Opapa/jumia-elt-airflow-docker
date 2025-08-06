@@ -18,6 +18,7 @@ from jumia_pipeline import (
     run_silver_layer_procedure,
     run_gold_layer_procedure
 )
+
 # DAG Configuration
 default_args = {
     'owner': 'opapa-peter',
@@ -40,9 +41,9 @@ dag = DAG(
     tags=['jumia', 'elt', 'laptops', 'data-pipeline']
 )
 
-# Task 1: Extract laptop data from Jumia
+# Task 1: Extract laptop data
 def extract_task():
-    """Extract laptop data and return for next task"""
+    """Extract laptop data and store via XCom"""
     print("🚀 Starting data extraction...")
     data = scrape_laptop_data()
     print(f"📊 Extracted {len(data)} laptop records")
@@ -54,7 +55,7 @@ extract_laptops = PythonOperator(
     dag=dag,
     doc_md="""
     ### Extract Laptops
-    Scrapes laptop data from 6 pages of Jumia Kenya laptops category.
+    Scrapes laptop data from Jumia Kenya.
     Extracts: product name, current price, old price, discount, date
     """
 )
@@ -65,8 +66,11 @@ def load_task(**context):
     print("📥 Starting data loading...")
     # Get data from previous task
     data = context['task_instance'].xcom_pull(task_ids='extract_laptops')
-    load_to_bronze(data)
-    print("✅ Data loaded to Bronze layer")
+    if data:
+        load_to_bronze(data)
+        print("✅ Data loaded to Bronze layer")
+    else:
+        raise ValueError("No data received from extraction task")
 
 load_bronze = PythonOperator(
     task_id='load_bronze',
@@ -74,8 +78,7 @@ load_bronze = PythonOperator(
     dag=dag,
     doc_md="""
     ### Load to Bronze Layer
-    Loads raw scraped data into bronze.jumia_raw_laptops table.
-    Truncates existing data and inserts fresh records.
+    Loads scraped data into bronze.jumia_raw_laptops table.
     """
 )
 
