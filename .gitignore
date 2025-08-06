@@ -3,9 +3,6 @@ __pycache__/
 *.py[codz]
 *$py.class
 
-# Environment variables (contains sensitive data like passwords)
-.env
-
 # C extensions
 *.so
 
@@ -216,6 +213,11 @@ docker-compose.override.yml
 airflow/logs/*
 !airflow/logs/.gitkeep
 airflow/plugins/__pycache__/
+
+# Environment Variables (SECURITY - CRITICAL)
+.env
+.env.*
+!.env.template
 
 # Data files
 *.csv
