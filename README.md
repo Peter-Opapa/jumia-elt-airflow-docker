@@ -5,7 +5,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-blue.svg)](https://www.docker.com/)
 [![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![CI](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/.github/workflows/ci-cd.yml/badge.svg)
+![CI](https://github.com/Peter-Opapa/jumia-elt-airflow-docker/actions/workflows/ci-cd.yml/badge.svg)
 
 
 <div align="center">
