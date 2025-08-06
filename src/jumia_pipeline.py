@@ -5,90 +5,107 @@ Extracts laptop data from Jumia Kenya, loads to Bronze layer,
 and triggers Silver/Gold transformations via stored procedures.
 """
 
-from bs4 import BeautifulSoup
-import requests
-import time
 import datetime
-import pandas as pd
 import os
+import time
+from typing import List, Any
+
+import pandas as pd
 import psycopg2
+import requests
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Configuration
 BASE_URL = "https://www.jumia.co.ke"
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) " "AppleWebKit/537.36"),
     "Accept-Encoding": "gzip, deflate",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept": ("text/html,application/xhtml+xml,application/xml;" "q=0.9,*/*;q=0.8"),
     "DNT": "1",
     "Connection": "close",
-    "Upgrade-Insecure-Requests": "1"
+    "Upgrade-Insecure-Requests": "1",
 }
 
+
 def get_db_connection():
-    """Create database connection to your existing jumia_db"""
-    # Connect to your existing PostgreSQL database
-    host = "host.docker.internal"  # Your local PostgreSQL
-    database = "jumia_db"
-    user = "postgres"
-    port = 5432
-    password = "Opapa@1292"
+    """Create database connection using environment variables."""
+    host = os.getenv("DB_HOST", "host.docker.internal")
+    database = os.getenv("DB_NAME", "jumia_db")
+    user = os.getenv("DB_USER", "postgres")
+    port = int(os.getenv("DB_PORT", 5432))
+    password = os.getenv("DB_PASSWORD")
+
+    if not password:
+        raise ValueError("DB_PASSWORD environment variable is required")
 
     print(f"🔗 Connecting to: {host}:{port}/{database} as {user}")
 
     return psycopg2.connect(
-        host=host,
-        database=database,
-        user=user,
-        port=port,
-        password=password
+        host=host, database=database, user=user, port=port, password=password
     )
 
-def scrape_laptop_data():
+
+def scrape_laptop_data() -> List[List[Any]]:
     """
-    Scrapes laptop data from Jumia Kenya (6 pages)
+    Scrapes laptop data from Jumia Kenya.
     Returns: List of laptop data [name, price, old_price, discount, date]
     """
     all_data = []
     today = datetime.date.today()
+    max_pages = int(os.getenv("MAX_PAGES", 6))
+    delay = float(os.getenv("DELAY_BETWEEN_REQUESTS", 1))
 
     print("🚀 Starting Jumia laptop scraping...")
 
-    for page in range(1, 2):  # Scrape 1 pages as in original
-        category_url = f"https://www.jumia.co.ke/mlp-laptops/?page={page}"
+    for page in range(1, max_pages + 1):
+        category_url = f"https://www.jumia.co.ke/mlp-laptops/" f"?page={page}"
         print(f"\n📄 Scraping Page {page}...")
 
         try:
             response = requests.get(category_url, headers=HEADERS, timeout=10)
             response.raise_for_status()
-            soup = BeautifulSoup(response.text, 'html.parser')
-            products = soup.find_all('article', class_='c-prd')
+            soup = BeautifulSoup(response.text, "html.parser")
+            products = soup.find_all("article", class_="c-prd")
 
             print(f"   Found {len(products)} products on page {page}")
 
-            for i, product in enumerate(products):
-                a_tag = product.find('a', class_='core')
+            for product in products:
+                a_tag = product.find("a", class_="core")
                 if not a_tag:
                     continue
 
-                product_url = BASE_URL + a_tag.get('href')
+                product_url = BASE_URL + a_tag.get("href")
                 try:
-                    product_response = requests.get(product_url, headers=HEADERS, timeout=10)
+                    product_response = requests.get(
+                        product_url, headers=HEADERS, timeout=10
+                    )
                     product_response.raise_for_status()
-                    product_soup = BeautifulSoup(product_response.text, 'html.parser')
+                    product_soup = BeautifulSoup(product_response.text, "html.parser")
 
-                    name = product_soup.find('h1').text.strip() if product_soup.find('h1') else 'N/A'
-                    price = product_soup.find('span', class_='-b -ubpt -tal -fs24 -prxs')
-                    old_price = product_soup.find('span', class_='-tal -gy5 -lthr -fs16 -pvxs -ubpt')
-                    discount = product_soup.find('span', class_='bdg _dsct _dyn -mls')
+                    name_elem = product_soup.find("h1")
+                    name = name_elem.text.strip() if name_elem else "N/A"
 
-                    all_data.append([
-                        name,
-                        price.text.strip() if price else 'N/A',
-                        old_price.text.strip() if old_price else 'N/A',
-                        discount.text.strip() if discount else 'N/A',
-                        today
-                    ])
-                    time.sleep(1)  # Rate limiting
+                    price_elem = product_soup.find(
+                        "span", class_="-b -ubpt -tal -fs24 -prxs"
+                    )
+                    price = price_elem.text.strip() if price_elem else "N/A"
+
+                    old_price_elem = product_soup.find(
+                        "span", class_="-tal -gy5 -lthr -fs16 -pvxs -ubpt"
+                    )
+                    old_price = old_price_elem.text.strip() if old_price_elem else "N/A"
+
+                    discount_elem = product_soup.find(
+                        "span", class_="bdg _dsct _dyn -mls"
+                    )
+                    discount = discount_elem.text.strip() if discount_elem else "N/A"
+
+                    all_data.append([name, price, old_price, discount, today])
+                    time.sleep(delay)  # Rate limiting
 
                 except requests.exceptions.RequestException as e:
                     print(f"   ⚠️  Product error: {e}")
@@ -101,16 +118,19 @@ def scrape_laptop_data():
     print(f"✅ Scraping completed! Total products: {len(all_data)}")
 
     # Save CSV for backup (local development)
-    if not os.path.exists('/opt/airflow'):  # Not in Docker
-        df = pd.DataFrame(all_data, columns=['Name', 'Current Price', 'Old Price', 'Discount', 'Date'])
-        df.to_csv('JumiaLaptopScrape.csv', index=False)
+    if not os.path.exists("/opt/airflow"):  # Not in Docker
+        df = pd.DataFrame(
+            all_data, columns=["Name", "Current Price", "Old Price", "Discount", "Date"]
+        )
+        df.to_csv("JumiaLaptopScrape.csv", index=False)
         print("📁 Data saved to JumiaLaptopScrape.csv")
 
     return all_data
 
+
 def load_to_bronze(data):
     """
-    Loads scraped data into bronze.jumia_raw_laptops table
+    Loads scraped data into bronze.jumia_raw_laptops table.
     Args: data - List of laptop records
     """
     conn = None
@@ -121,7 +141,8 @@ def load_to_bronze(data):
         cursor = conn.cursor()
 
         # Create bronze schema and table if they don't exist
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE SCHEMA IF NOT EXISTS bronze;
             CREATE TABLE IF NOT EXISTS bronze.jumia_raw_laptops (
                 id SERIAL PRIMARY KEY,
@@ -131,7 +152,8 @@ def load_to_bronze(data):
                 discount TEXT,
                 scraped_on DATE
             );
-        """)
+        """
+        )
         conn.commit()
 
         # Clear existing data
@@ -158,9 +180,10 @@ def load_to_bronze(data):
             cursor.close()
             conn.close()
 
+
 def run_silver_layer_procedure():
     """
-    Executes silver.clean_jumia_laptops() stored procedure
+    Executes silver.clean_jumia_laptops() stored procedure.
     """
     conn = None
     try:
@@ -170,13 +193,15 @@ def run_silver_layer_procedure():
         cursor = conn.cursor()
 
         # Check if procedure exists
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT EXISTS (
                 SELECT FROM pg_proc p
                 JOIN pg_namespace n ON p.pronamespace = n.oid
                 WHERE n.nspname = 'silver' AND p.proname = 'clean_jumia_laptops'
             );
-        """)
+        """
+        )
         proc_exists = cursor.fetchone()[0]
 
         if proc_exists:
@@ -196,9 +221,10 @@ def run_silver_layer_procedure():
             cursor.close()
             conn.close()
 
+
 def run_gold_layer_procedure():
     """
-    Executes gold.refresh_gold_layer() stored procedure
+    Executes gold.refresh_gold_layer() stored procedure.
     """
     conn = None
     try:
@@ -208,13 +234,15 @@ def run_gold_layer_procedure():
         cursor = conn.cursor()
 
         # Check if procedure exists
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT EXISTS (
                 SELECT FROM pg_proc p
                 JOIN pg_namespace n ON p.pronamespace = n.oid
                 WHERE n.nspname = 'gold' AND p.proname = 'refresh_gold_layer'
             );
-        """)
+        """
+        )
         proc_exists = cursor.fetchone()[0]
 
         if proc_exists:
@@ -234,9 +262,10 @@ def run_gold_layer_procedure():
             cursor.close()
             conn.close()
 
+
 def run_full_pipeline():
     """
-    Executes the complete ELT pipeline
+    Executes the complete ELT pipeline.
     """
     print("🚀 Starting Jumia ELT Pipeline...")
     start_time = datetime.datetime.now()
@@ -263,6 +292,7 @@ def run_full_pipeline():
     except Exception as e:
         print(f"💥 Pipeline failed: {e}")
         return False
+
 
 if __name__ == "__main__":
     run_full_pipeline()
