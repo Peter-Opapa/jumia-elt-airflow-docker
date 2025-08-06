@@ -145,8 +145,21 @@ jobs:
           fi
           
           # Scan for potential passwords in code
-          if grep -r -i "password.*=" src/ airflow/ --exclude-dir=__pycache__ | grep -v "your_actual_password" | grep -v "placeholder"; then
-            echo "❌ Potential hardcoded passwords found!"
+          # Look for hardcoded passwords (quoted strings) but exclude environment variable usage and parameter passing
+          echo "Checking for hardcoded credentials..."
+          
+          # Check for patterns like password="actual_password" or password='actual_password'
+          # Exclude lines with os.getenv, environment variables, and parameter assignments
+          HARDCODED_PASSWORDS=$(grep -r -i -E "password\s*=\s*['\"][^'\"]{3,}['\"]" src/ airflow/ --exclude-dir=__pycache__ | \
+            grep -v "os.getenv" | \
+            grep -v "your_actual_password" | \
+            grep -v "placeholder" | \
+            grep -v "password=password" | \
+            grep -v "DB_PASSWORD" || true)
+          
+          if [ -n "$HARDCODED_PASSWORDS" ]; then
+            echo "❌ Potential hardcoded passwords found:"
+            echo "$HARDCODED_PASSWORDS"
             exit 1
           else
             echo "✅ No hardcoded passwords detected"
